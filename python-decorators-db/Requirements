@@ -1,0 +1,6 @@
+Requirements
+Python 3.8 or higher installed.
+SQLite3 database setup with a users table for testing.
+A working knowledge of Python decorators and database operations.
+Familiarity with Git and GitHub for project submission.
+Strong problem-solving skills and attention to detail.

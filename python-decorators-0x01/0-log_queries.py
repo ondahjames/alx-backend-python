@@ -1,41 +1,33 @@
 import sqlite3
 import functools
-import time
+from datetime import datetime   # ✅ Required import
 
-
-# -------------------------------
-# Decorator to Log SQL Queries
-# -------------------------------
 def log_queries(func):
-    """Decorator that logs SQL queries before executing them."""
+    """Decorator to log SQL queries executed by a function."""
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        query = kwargs.get("query") or (args[0] if args else None)
-        start_time = time.time()
+        query = kwargs.get("query", None)
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        print(f"[LOG] Function: {func.__name__}")
-        print(f"[SQL] Executing Query: {query}")
+        print(f"[{timestamp}] Executing function: {func.__name__}")
+        if query:
+            print(f"[SQL] Query: {query}")
 
+        # Execute the function
         result = func(*args, **kwargs)
 
-        duration = round((time.time() - start_time) * 1000, 2)
-        print(f"[LOG] Execution completed in {duration}ms\n")
+        # Log query details to file
+        with open("query_logs.txt", "a") as log_file:
+            log_file.write(f"{timestamp} | Function: {func.__name__} | Query: {query}\n")
 
-        # Optional: write logs to a file
-        with open("query_logs.txt", "a") as f:
-            f.write(f"{time.ctime()} | {func.__name__} | {query} | {duration}ms\n")
-
+        print(f"[{timestamp}] Execution completed.\n")
         return result
 
     return wrapper
 
 
-# -------------------------------
-# Example Function Using Decorator
-# -------------------------------
 @log_queries
 def fetch_all_users(query):
-    """Fetch all users from the database."""
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
     cursor.execute(query)
@@ -44,8 +36,6 @@ def fetch_all_users(query):
     return results
 
 
-# -------------------------------
-# Run Example
-# -------------------------------
+# Example usage
 users = fetch_all_users(query="SELECT * FROM users")
 print(users)
